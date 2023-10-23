@@ -54,9 +54,25 @@ let rec toRoman = function
             let value, numeral = largestNumeralFor x
             numeral :: toRoman (x - value)
 
+let toInt =
+    let aux (acc, previous) next =
+        let next = valueOf next
+        match previous with
+        // empty stack -> acc, [V]
+        | -1 -> acc, next
+        // IV -> acc + IV, []
+        | previous when previous < next -> acc + next - previous, -1
+        // VI -> acc + V, [I]
+        | previous -> acc + previous, next
+            
+    let sumState = function
+        | a, -1 -> a
+        | a, b -> a + b
+    List.fold aux (0, -1) >> sumState
+
 [
     toRoman 5 // [V]
     toRoman 10 // [X]
     toRoman 9 // [I; X]
     toRoman 8 // [V; I; I; I]
-] |> List.iter (printfn "%A")
+] |> List.map toInt
