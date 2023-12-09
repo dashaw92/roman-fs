@@ -23,7 +23,7 @@ let numerals =
 // Given a number `x`, find the first numeral where `x` is >= the decimal value
 // This depends on the ordering of the numerals above, since it'll always return I
 // if the list is reversed (x >= 1 when the inputs are constrained to always >= 1)
-let largestNumeralFor x = numerals |> List.find (fun (value, _) -> x >= value)
+let largestNumeralFor x = numerals |> List.find (fst >> (>=) x)
 
 // Rather than figure out a complex solution to handling this with math,
 // just hardcode the 6 edge cases. These can be considered "pseudo-numerals"
@@ -59,16 +59,13 @@ let toInt =
         let next = valueOf next
         match previous with
         // empty stack -> acc, [V]
-        | -1 -> acc, next
+        | 0 -> acc, next
         // IV -> acc + IV, []
-        | previous when previous < next -> acc + next - previous, -1
+        | previous when previous < next -> acc + next - previous, 0
         // VI -> acc + V, [I]
         | previous -> acc + previous, next
-            
-    let sumState = function
-        | a, -1 -> a
-        | a, b -> a + b
-    List.fold aux (0, -1) >> sumState
+    
+    List.fold aux (0, 0) >> ((<||) (+))
 
 [
     toRoman 5 // [V]
